@@ -1,0 +1,35 @@
+name: Run Weather Collector
+
+on:
+  schedule:
+    # Chạy mỗi 30 phút
+    # Lưu ý: GitHub Actions miễn phí nên giờ chạy có thể lệch xíu, không chính xác từng giây
+    - cron: '*/30 * * * *' 
+  workflow_dispatch: # Cho phép bấm nút chạy thủ công để test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install libraries
+        run: |
+          pip install requests psycopg2-binary
+
+      - name: Run Collector Script
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          OWM_API_KEYS: ${{ secrets.OWM_API_KEYS }}
+        run: python data_collector.py
